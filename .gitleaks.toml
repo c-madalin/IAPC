@@ -1,0 +1,10 @@
+# Default gitleaks rules plus allowlists for files that only contain placeholders.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders and test fixtures"
+paths = [
+  '''\.env\.example$''',
+  '''(^|/)src/test/''',
+]

@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: eval
+  main:
+    web-application-type: none
+    banner-mode: off
+  http:
+    clients:
+      read-timeout: 180s

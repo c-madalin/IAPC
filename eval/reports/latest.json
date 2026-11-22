@@ -1,0 +1,171 @@
+{
+  "pipelineHash" : "d481f5fefab79fc1",
+  "createdAt" : "2026-11-22T11:31:46.274830536Z",
+  "chatModel" : "none (retrieval only)",
+  "k" : 5,
+  "stages" : {
+    "expand" : null,
+    "rerank" : null,
+    "stitch" : null
+  },
+  "metrics" : {
+    "recall_at_k" : 1.0,
+    "mrr" : 0.9090909090909091,
+    "errors" : 0.0
+  },
+  "results" : [ {
+    "id" : "q01",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:scope_roles.pdf", "static:authentication_datahandling.pdf", "static:updatecycle_checklist.pdf", "static:compliance_responsibilities.pdf", "static:secure_development.pdf", "static:policy_incidentmanagement.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 0.5,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q02",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:authentication_datahandling.pdf", "static:compliance_responsibilities.pdf", "static:scope_roles.pdf", "static:policy_incidentmanagement.pdf", "static:updatecycle_checklist.pdf", "static:secure_development.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q03",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:authentication_datahandling.pdf", "static:scope_roles.pdf", "static:compliance_responsibilities.pdf", "static:policy_incidentmanagement.pdf", "static:updatecycle_checklist.pdf", "static:secure_development.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q04",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:compliance_responsibilities.pdf", "static:scope_roles.pdf", "static:policy_incidentmanagement.pdf", "static:secure_development.pdf", "static:authentication_datahandling.pdf", "static:updatecycle_checklist.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q05",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:compliance_responsibilities.pdf", "static:authentication_datahandling.pdf", "static:policy_incidentmanagement.pdf", "static:scope_roles.pdf", "static:updatecycle_checklist.pdf", "static:secure_development.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q06",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:compliance_responsibilities.pdf", "static:policy_incidentmanagement.pdf", "static:scope_roles.pdf", "static:updatecycle_checklist.pdf", "static:authentication_datahandling.pdf", "static:secure_development.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 0.5,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q07",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:policy_incidentmanagement.pdf", "static:authentication_datahandling.pdf", "static:compliance_responsibilities.pdf", "static:scope_roles.pdf", "static:updatecycle_checklist.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q08",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:scope_roles.pdf", "static:secure_development.pdf", "static:policy_incidentmanagement.pdf", "static:authentication_datahandling.pdf", "static:updatecycle_checklist.pdf", "static:compliance_responsibilities.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q09",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:secure_development.pdf", "static:policy_incidentmanagement.pdf", "static:compliance_responsibilities.pdf", "static:scope_roles.pdf", "static:authentication_datahandling.pdf", "static:updatecycle_checklist.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q10",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:secure_development.pdf", "static:authentication_datahandling.pdf", "static:compliance_responsibilities.pdf", "static:scope_roles.pdf", "static:updatecycle_checklist.pdf", "static:policy_incidentmanagement.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q11",
+    "answerable" : true,
+    "retrievedDocIds" : [ "static:updatecycle_checklist.pdf", "static:scope_roles.pdf", "static:compliance_responsibilities.pdf", "static:authentication_datahandling.pdf", "static:secure_development.pdf", "static:policy_incidentmanagement.pdf" ],
+    "hit" : true,
+    "reciprocalRank" : 1.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q12",
+    "answerable" : false,
+    "retrievedDocIds" : [ "static:policy_incidentmanagement.pdf", "static:compliance_responsibilities.pdf", "static:scope_roles.pdf", "static:authentication_datahandling.pdf", "static:updatecycle_checklist.pdf" ],
+    "hit" : false,
+    "reciprocalRank" : 0.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q13",
+    "answerable" : false,
+    "retrievedDocIds" : [ "static:scope_roles.pdf", "static:compliance_responsibilities.pdf", "static:policy_incidentmanagement.pdf", "static:authentication_datahandling.pdf", "static:updatecycle_checklist.pdf", "static:secure_development.pdf" ],
+    "hit" : false,
+    "reciprocalRank" : 0.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  }, {
+    "id" : "q14",
+    "answerable" : false,
+    "retrievedDocIds" : [ "static:scope_roles.pdf", "static:authentication_datahandling.pdf", "static:policy_incidentmanagement.pdf", "static:secure_development.pdf", "static:compliance_responsibilities.pdf", "static:updatecycle_checklist.pdf" ],
+    "hit" : false,
+    "reciprocalRank" : 0.0,
+    "refused" : null,
+    "topSimilarity" : null,
+    "citationsGrounded" : null,
+    "answer" : null,
+    "error" : null
+  } ]
+}

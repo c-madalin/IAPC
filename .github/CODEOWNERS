@@ -1,0 +1,14 @@
+# Auto-requests reviewers. PLACEHOLDERS: replace each <...> with a GitHub handle (e.g. @LeoMavri) and uncomment.
+# Tracked in docs/open-items.md. With branch protection's "Require review from Code Owners", a PR needs an
+# approval from the owner of every path it touches.
+
+# Infra: build, CI, compose, shared libraries, gateway, registry, orchestrator, eval runner, docs.
+# *                     <infra-owner-1> <infra-owner-2>
+
+# /ingest-static/       <story-1-owner>
+# /rag-store/src/main/resources/db/migration/  <story-1-owner>
+# /ingest-dynamic/      <story-2-owner>
+# /retrieval-pre/       <story-3-owner>
+# /retrieval-post/      <story-4-owner>
+# /eval/data/           <story-4-owner>
+# /eval/baseline.json   <story-4-owner> <infra-owner-1>

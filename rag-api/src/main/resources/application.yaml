@@ -1,0 +1,11 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: rag-api
+  http:
+    clients:
+      connect-timeout: 2s
+      # Covers a cold local LLM call in retrieval-post.
+      read-timeout: 120s

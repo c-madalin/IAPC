@@ -1,0 +1,20 @@
+name: eval-check
+
+# The eval runs locally against real models (`make eval`). This job checks that the committed report matches the
+# current pipeline code and that no metric regressed past the tolerance. See .claude/skills/eval-regression.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  eval-gate:
+    name: eval report is current, no regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/eval-check.py

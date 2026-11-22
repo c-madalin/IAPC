@@ -1,0 +1,195 @@
+# Full stack. Start with `make up` (or `docker compose up --build -d`). See docs/development.md.
+#
+# Startup order: pgvector + eureka-server -> ingest-static (runs Flyway, creates the vector index)
+# -> the other services. The gateway only needs Eureka.
+# Only the gateway (8080) is public. Postgres, Eureka and Grafana bind to 127.0.0.1.
+
+name: iapc
+
+x-app: &app
+  build:
+    context: .
+  restart: unless-stopped
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  environment: &app-env
+    EUREKA_URL: http://eureka-server:8761/eureka
+    DB_URL: jdbc:postgresql://pgvector:5432/rag
+    POSTGRES_USER: rag
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+    OTEL_ENABLED: ${OTEL_ENABLED:-false}
+    OTEL_ENDPOINT: http://otel-lgtm:4318
+    DEPLOY_ENV: docker
+
+x-healthcheck: &actuator-health
+  # The JRE image has no curl; bash's /dev/tcp is enough to read the health endpoint.
+  test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/$$SERVER_PORT && printf 'GET /actuator/health HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '\"status\":\"UP\"' <&3"]
+  interval: 5s
+  timeout: 3s
+  retries: 30
+  start_period: 20s
+
+services:
+  pgvector:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rag
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag -d rag"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  eureka-server:
+    <<: *app
+    build:
+      context: .
+      args: { MODULE: eureka-server }
+    environment:
+      SERVER_PORT: 8761
+      EUREKA_INSTANCE_HOSTNAME: eureka-server
+    ports:
+      - "127.0.0.1:8761:8761"
+    healthcheck: *actuator-health
+
+  api-gateway:
+    <<: *app
+    build:
+      context: .
+      args: { MODULE: api-gateway }
+    environment:
+      <<: *app-env
+      SERVER_PORT: 8080
+      EUREKA_INSTANCE_HOSTNAME: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      eureka-server: { condition: service_healthy }
+    healthcheck: *actuator-health
+
+  ingest-static:
+    <<: *app
+    build:
+      context: .
+      args: { MODULE: ingest-static }
+    environment:
+      <<: *app-env
+      SERVER_PORT: 8082
+      EUREKA_INSTANCE_HOSTNAME: ingest-static
+      INGEST_RESOURCES: file:/app/resources/*.pdf
+      INGEST_SYNC_ON_STARTUP: ${INGEST_SYNC_ON_STARTUP:-true}
+      CHUNK_SIZE: ${CHUNK_SIZE:-400}
+    volumes:
+      - ./resources:/app/resources:ro
+    depends_on:
+      pgvector: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
+    healthcheck: *actuator-health
+
+  ingest-dynamic:
+    <<: *app
+    build:
+      context: .
+      args: { MODULE: ingest-dynamic }
+    environment:
+      <<: *app-env
+      SERVER_PORT: 8083
+      EUREKA_INSTANCE_HOSTNAME: ingest-dynamic
+      VENDOR_WEBHOOK_SECRET: ${VENDOR_WEBHOOK_SECRET:?set VENDOR_WEBHOOK_SECRET in .env}
+      INGEST_BLOCK_PRIVATE_NETWORKS: ${INGEST_BLOCK_PRIVATE_NETWORKS:-true}
+    volumes:
+      - ./resources:/app/resources:ro
+    depends_on: &after-ingest-static
+      eureka-server: { condition: service_healthy }
+      # required: false: with `make dev svc=ingest-static` this container is absent and the host process replaces it.
+      ingest-static: { condition: service_healthy, required: false }
+    healthcheck: *actuator-health
+
+  retrieval-pre:
+    <<: *app
+    build:
+      context: .
+      args: { MODULE: retrieval-pre }
+    environment:
+      <<: *app-env
+      SERVER_PORT: 8084
+      EUREKA_INSTANCE_HOSTNAME: retrieval-pre
+      RETRIEVAL_TOP_N: ${RETRIEVAL_TOP_N:-20}
+    depends_on: *after-ingest-static
+    healthcheck: *actuator-health
+
+  retrieval-post:
+    <<: *app
+    build:
+      context: .
+      args: { MODULE: retrieval-post }
+    environment:
+      <<: *app-env
+      SERVER_PORT: 8085
+      EUREKA_INSTANCE_HOSTNAME: retrieval-post
+      CHAT_MODEL: ${CHAT_MODEL:-qwen2.5:7b}
+      RERANK_TOP_K: ${RERANK_TOP_K:-5}
+    depends_on: *after-ingest-static
+    healthcheck: *actuator-health
+
+  rag-api:
+    <<: *app
+    build:
+      context: .
+      args: { MODULE: rag-api }
+    environment:
+      <<: *app-env
+      SERVER_PORT: 8081
+      EUREKA_INSTANCE_HOSTNAME: rag-api
+    depends_on: *after-ingest-static
+    healthcheck: *actuator-health
+
+  # --- profile ollama-gpu: Ollama in a container with NVIDIA passthrough. Set OLLAMA_BASE_URL=http://ollama:11434.
+  ollama:
+    image: ollama/ollama:latest
+    profiles: [ollama-gpu]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    profiles: [ollama-gpu]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["sh", "-c", "ollama pull ${EMBEDDING_MODEL:-nomic-embed-text} && ollama pull ${CHAT_MODEL:-qwen2.5:7b}"]
+    depends_on: [ollama]
+    restart: "no"
+
+  # --- profile obs: Grafana + Prometheus + Loki + Tempo + OTel collector in one container. Set OTEL_ENABLED=true.
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    profiles: [obs]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./observability/grafana/dashboards:/otel-lgtm/iapc-dashboards:ro
+      - ./observability/grafana/provisioning/iapc.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/iapc.yaml:ro
+
+volumes:
+  pgdata:
+  ollama:

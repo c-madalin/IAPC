@@ -1,0 +1,62 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: format, build, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Formatting (run `make fmt` locally to fix)
+        run: ./mvnw -B -q spotless:check
+      - name: Build, unit and integration tests
+        run: ./mvnw -B verify
+      - name: Coverage summary
+        if: always()
+        run: python3 scripts/coverage-summary.py >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/target/surefire-reports/
+            **/target/failsafe-reports/
+            **/target/site/jacoco/
+          retention-days: 7
+
+  config:
+    name: compose and dashboards
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compose files are valid
+        env:
+          POSTGRES_PASSWORD: ci
+          VENDOR_WEBHOOK_SECRET: ci
+        run: |
+          docker compose config -q
+          docker compose -f compose.yaml -f compose.dev.yaml config -q
+          docker compose --profile obs --profile ollama-gpu config -q
+      - name: Dashboards match their generator
+        run: |
+          python3 scripts/gen-dashboards.py
+          git diff --exit-code observability/ || (echo "Run 'make dashboards' and commit the result." && exit 1)

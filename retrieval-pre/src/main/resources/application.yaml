@@ -1,0 +1,18 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: retrieval-pre
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/rag}
+    username: ${POSTGRES_USER:rag}
+    password: ${POSTGRES_PASSWORD:}
+
+rag:
+  store:
+    ollama-base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    default-model: ${EMBEDDING_MODEL:nomic-embed-text}
+  retrieval:
+    default-top-n: ${RETRIEVAL_TOP_N:20}
+    max-top-n: 100
