@@ -8,6 +8,7 @@ COPY mvnw pom.xml ./
 COPY rag-common/pom.xml rag-common/
 COPY rag-platform/pom.xml rag-platform/
 COPY rag-store/pom.xml rag-store/
+COPY rag-ingest/pom.xml rag-ingest/
 COPY rag-test-support/pom.xml rag-test-support/
 COPY eureka-server/pom.xml eureka-server/
 COPY api-gateway/pom.xml api-gateway/

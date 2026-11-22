@@ -60,7 +60,10 @@ and their dimensions are listed in `rag.store.models`.
 
 Every chunk carries the keys in `MetadataKeys`: `doc_id`, `version`, `source`, `page`, `chunk_index`, `checksum`,
 `is_latest`, `valid_from`, `embedding_model`, and for web sources `source_url` and `fetched_at`. ingest-static uses
-`static:<filename>` as the `doc_id`.
+`static:<filename>` as the `doc_id`; ingest-dynamic uses `web:<normalized URL>` and `repo:<owner>/<repo>/<path>`.
+
+Both ingestion services chunk with the `rag-ingest` library (`PdfChunker`, `ChunkMetadata`, `Checksums`), so a
+remote PDF is chunked the same way as a local one.
 
 ## Observability
 

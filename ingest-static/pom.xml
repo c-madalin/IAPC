@@ -54,8 +54,8 @@
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-pdf-document-reader</artifactId>
+            <groupId>ro.iapc</groupId>
+            <artifactId>rag-ingest</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

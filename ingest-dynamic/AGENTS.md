@@ -14,6 +14,8 @@ blocked hosts, HTTPS only, domain allowlist, timeout, size limit, content-type c
 
 - `SourceController`: `POST /sources`, `POST /webhooks/vendor` (501 stubs).
 - Config: `rag.dynamic.webhook-secret` (`VENDOR_WEBHOOK_SECRET`), `rag.dynamic.block-private-networks`.
+- Chunk remote PDFs with rag-ingest's `PdfChunker` and set the document keys with `ChunkMetadata`, so they match
+  static ones. Doc ids are `web:<normalized URL>` and `repo:<owner>/<repo>/<path>` (docs/decisions.md).
 - Writes through rag-store's `VectorStoreProvider.active()` like ingest-static; use `MetadataKeys.SOURCE_URL`,
   `FETCHED_AT`, `VERSION`, `IS_LATEST`, `VALID_FROM`.
 

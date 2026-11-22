@@ -9,7 +9,10 @@ services wait for it to be healthy.
 
 ## Code
 
-- `PdfIngestionService`: the pipeline. Skeleton: page reader, `TokenTextSplitter`, delete-then-add per `doc_id`.
+- `PdfIngestionService`: the pipeline. Skeleton: chunks with rag-ingest's `PdfChunker`, then delete-then-add per
+  `doc_id`.
+- rag-ingest (also yours, see its `AGENTS.md`): `PdfChunker`, `ChunkMetadata`, `Checksums`. Task 1's chunking goes
+  there, because ingest-dynamic chunks remote PDFs with the same code.
 - `ManifestRepository`: `ingestion_manifest` table.
 - `StartupIndexer`: `ensureActiveIndex()` then the optional sync on startup.
 - `DocumentController`: `POST /documents/sync`, `DELETE /documents/{docId}`, `GET /manifest`.

@@ -10,7 +10,7 @@ description: Run the IAPC evaluation harness (golden set, recall@k, MRR, refusal
 `scripts/eval-check.py`:
 
 1. `eval/reports/latest.json` exists and its `pipelineHash` equals `scripts/pipeline-hash.py` for the current code.
-   The hash covers `src/main` of rag-common, rag-platform, rag-store, rag-api, ingest-static, ingest-dynamic,
+   The hash covers `src/main` of rag-common, rag-platform, rag-store, rag-ingest, rag-api, ingest-static, ingest-dynamic,
    retrieval-pre, retrieval-post, every `pom.xml` (dependency bumps change behaviour), the `resources/` corpus and
    `eval/data/golden-set.json`. Tests and docs don't count.
 2. The report has no errored questions.

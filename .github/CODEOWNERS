@@ -6,6 +6,7 @@
 # *                     <infra-owner-1> <infra-owner-2>
 
 # /ingest-static/       <story-1-owner>
+# /rag-ingest/          <story-1-owner>
 # /rag-store/src/main/resources/db/migration/  <story-1-owner>
 # /ingest-dynamic/      <story-2-owner>
 # /retrieval-pre/       <story-3-owner>

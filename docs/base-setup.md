@@ -37,6 +37,7 @@ The Maven wrapper pins Maven 3.9.16, so nobody needs Maven installed.
 | `rag-common` | none | Request and response records, `MetadataKeys`, `ServiceNames`, `MetricNames` |
 | `rag-platform` | none | Shared Spring setup: logging, OTLP export, error handling, `ServiceClients`, `StageTimer`, the `hostdev` profile |
 | `rag-store` | none | `IndexRegistry`, `VectorStoreProvider`, `ChunkQueries`, Ollama embedding models, Flyway migrations |
+| `rag-ingest` | none | Chunking shared by both ingestion services: `PdfChunker`, `ChunkMetadata`, `Checksums`. Story 1 owns it |
 | `rag-test-support` | none | `FakeEmbeddingModel`, `FakeChatModel`, `FakeModels`, `PgvectorTestcontainer` |
 
 The story services are a walking skeleton. Each endpoint exists and works end to end with the simplest
