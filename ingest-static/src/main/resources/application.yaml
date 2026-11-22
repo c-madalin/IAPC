@@ -1,0 +1,22 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ingest-static
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/rag}
+    username: ${POSTGRES_USER:rag}
+    password: ${POSTGRES_PASSWORD:}
+  flyway:
+    # Migrations live in rag-store (classpath:db/migration). Only this service runs them.
+    enabled: true
+
+rag:
+  store:
+    ollama-base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    default-model: ${EMBEDDING_MODEL:nomic-embed-text}
+  ingest:
+    resources: ${INGEST_RESOURCES:file:./resources/*.pdf}
+    sync-on-startup: ${INGEST_SYNC_ON_STARTUP:false}
+    chunk-size: ${CHUNK_SIZE:400}

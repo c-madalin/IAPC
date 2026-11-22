@@ -1,0 +1,19 @@
+{
+  "description": "Starter golden set. Story 4 Task 4 grows it to at least 30 pairs, including unanswerable ones. expectedDocIds use the doc_id ingest-static assigns (static:<filename>).",
+  "questions": [
+    {"id": "q01", "question": "What is the minimum password length?", "expectedDocIds": ["static:authentication_datahandling.pdf"], "answerable": true},
+    {"id": "q02", "question": "Is multi-factor authentication mandatory?", "expectedDocIds": ["static:authentication_datahandling.pdf"], "answerable": true},
+    {"id": "q03", "question": "After how many minutes of inactivity do idle sessions log out?", "expectedDocIds": ["static:authentication_datahandling.pdf"], "answerable": true},
+    {"id": "q04", "question": "Which five functions does the NIST Cybersecurity Framework define?", "expectedDocIds": ["static:compliance_responsibilities.pdf"], "answerable": true},
+    {"id": "q05", "question": "How does EAAlgorithm implement GDPR requirements?", "expectedDocIds": ["static:compliance_responsibilities.pdf"], "answerable": true},
+    {"id": "q06", "question": "What must an employee do if a company laptop is lost or stolen?", "expectedDocIds": ["static:policy_incidentmanagement.pdf"], "answerable": true},
+    {"id": "q07", "question": "Can I use my personal email account for business purposes?", "expectedDocIds": ["static:policy_incidentmanagement.pdf"], "answerable": true},
+    {"id": "q08", "question": "Who does the security handbook apply to?", "expectedDocIds": ["static:scope_roles.pdf"], "answerable": true},
+    {"id": "q09", "question": "Which threat modeling methodology does EAAlgorithm use?", "expectedDocIds": ["static:secure_development.pdf"], "answerable": true},
+    {"id": "q10", "question": "Where must secrets be stored instead of being hardcoded?", "expectedDocIds": ["static:secure_development.pdf"], "answerable": true},
+    {"id": "q11", "question": "How often is the security handbook formally reviewed?", "expectedDocIds": ["static:updatecycle_checklist.pdf"], "answerable": true},
+    {"id": "q12", "question": "What is the company's parental leave policy?", "expectedDocIds": [], "answerable": false},
+    {"id": "q13", "question": "What was EAAlgorithm's revenue last year?", "expectedDocIds": [], "answerable": false},
+    {"id": "q14", "question": "Which programming language is used for the mobile app?", "expectedDocIds": [], "answerable": false}
+  ]
+}

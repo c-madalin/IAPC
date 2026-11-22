@@ -1,0 +1,7 @@
+rag:
+  store:
+    default-model: nomic-embed-text
+    models:
+      nomic-embed-text: 768
+      mxbai-embed-large: 1024
+    registry-cache-ttl: 0s

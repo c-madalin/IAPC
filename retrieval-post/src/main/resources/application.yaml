@@ -1,0 +1,12 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: retrieval-post
+
+rag:
+  answer:
+    ollama-base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    chat-model: ${CHAT_MODEL:qwen2.5:7b}
+    max-context-chunks: ${RERANK_TOP_K:5}

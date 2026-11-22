@@ -1,0 +1,69 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      # Spring Cloud 2025.x moved gateway properties under server.webflux.
+      server:
+        webflux:
+          discovery:
+            locator:
+              # Every registered service is reachable as /<service-id>/**, e.g. /retrieval-pre/retrieve.
+              # Fine for coursework; production would list explicit routes.
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            - id: ask
+              uri: lb://rag-api
+              predicates:
+                - Path=/api/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      otlp:
+        enabled: ${OTEL_ENABLED:false}
+  logging:
+    export:
+      otlp:
+        enabled: ${OTEL_ENABLED:false}
+  otlp:
+    metrics:
+      export:
+        enabled: ${OTEL_ENABLED:false}
+        url: ${OTEL_ENDPOINT:http://localhost:4318}/v1/metrics
+        step: 10s
+        base-time-unit: seconds
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_ENDPOINT:http://localhost:4318}/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTEL_ENDPOINT:http://localhost:4318}/v1/logs
+
+logging:
+  pattern:
+    correlation: "[${spring.application.name},%X{traceId:-},%X{spanId:-}] "

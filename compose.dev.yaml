@@ -1,0 +1,13 @@
+# Overlay for `make dev svc=<name>`: publishes each service on 127.0.0.1 so the one service running on the host
+# can call the others directly (see rag-platform's application-hostdev.properties). Not used by `make up`.
+services:
+  rag-api:
+    ports: ["127.0.0.1:8081:8081"]
+  ingest-static:
+    ports: ["127.0.0.1:8082:8082"]
+  ingest-dynamic:
+    ports: ["127.0.0.1:8083:8083"]
+  retrieval-pre:
+    ports: ["127.0.0.1:8084:8084"]
+  retrieval-post:
+    ports: ["127.0.0.1:8085:8085"]
