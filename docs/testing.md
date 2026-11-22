@@ -39,6 +39,8 @@ static class Fakes {
 - HTTP endpoint against a real database: `retrieval-pre/.../RetrievalControllerIT`, `ingest-static/.../DocumentControllerIT`.
 - Calls to other services mocked with `MockRestServiceServer`: `rag-api/.../AskControllerTest`.
 - LLM behaviour with the fake chat model: `retrieval-post/.../AnswerControllerTest`.
+- A failing embedding model: `rag-store/.../ChunkWriterIT` replaces the factory with a `@Primary` one whose fake
+  throws when a flag is set.
 - Pure logic, no Spring: `eval/.../MetricsTest`, `rag-platform/.../StageTimerTest`.
 
 Prefer plain unit tests for logic (normalization rules, filter parsing, RRF, stitching) and keep Spring tests for

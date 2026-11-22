@@ -23,5 +23,11 @@ public final class MetadataKeys {
     public static final String FETCHED_AT = "fetched_at";
     public static final String EMBEDDING_MODEL = "embedding_model";
 
+    /**
+     * Only on chunks that rag-store's ChunkWriter has written but not yet published. It holds the version the chunks
+     * will get; {@link #VERSION} is absent until then, so no version filter matches them.
+     */
+    public static final String STAGED_VERSION = "staged_version";
+
     private MetadataKeys() {}
 }

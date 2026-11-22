@@ -9,8 +9,8 @@ services wait for it to be healthy.
 
 ## Code
 
-- `PdfIngestionService`: the pipeline. Skeleton: chunks with rag-ingest's `PdfChunker`, then delete-then-add per
-  `doc_id`.
+- `PdfIngestionService`: the pipeline. Chunks with rag-ingest's `PdfChunker`, then replaces the document with
+  rag-store's `ChunkWriter` (`Retire.DELETE`).
 - rag-ingest (also yours, see its `AGENTS.md`): `PdfChunker`, `ChunkMetadata`, `Checksums`. Task 1's chunking goes
   there, because ingest-dynamic chunks remote PDFs with the same code.
 - `StartupIndexer`: `ensureActiveIndex()` then the optional sync on startup.
@@ -30,9 +30,10 @@ services wait for it to be healthy.
 - [ ] 1.4 Manifest records doc_id, checksum, version, timestamp, model, chunk count; reconciliation script shows zero
   drift; full re-index with a different embedding model on the sample set.
 
-Hints: for atomic replacement, write the new chunks first and remove the old ones in one transaction (PgVectorStore
-shares the `JdbcTemplate`, so a `TransactionTemplate` around both works), or use the version metadata. For re-index,
-`VectorStoreProvider.createIndex(model)`, ingest into `forIndex(newIndex)`, reconcile, then `IndexRegistry.activate`.
+Hints: atomic replacement is in place through `ChunkWriter`; Task 2 still needs the checksum skip and the chunk-count
+test. Staged chunks left by a crash carry `staged_version`, which the orphan check (Task 3) can look for. For
+re-index, re-embed the stored chunk text from the active table into `VectorStoreProvider.createIndex(model)`'s table,
+reconcile, then `IndexRegistry.activate` (docs/decisions.md, 2026-11-22).
 
 ## Tests
 

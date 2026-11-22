@@ -27,11 +27,11 @@ Everything still undecided or stubbed, in one place. When you resolve one, delet
 | Story / task | Stub today |
 |---|---|
 | 1.1 | Page-based PDF reading and `TokenTextSplitter` without overlap or structure awareness |
-| 1.2 | No checksum skip. Replacement is delete-then-add, not atomic |
+| 1.2 | No checksum skip. Replacement is atomic through `ChunkWriter`; no chunk-count test after an update yet |
 | 1.3 | Delete works; there's no orphan check |
 | 1.4 | Manifest table and `/manifest` exist; no reconciliation script or re-index endpoint (the store API supports it) |
 | 2.1 to 2.4 | ingest-dynamic endpoints return 501 |
-| 3.1 | Any filter is rejected with 400 |
+| 3.1 | Any filter is rejected with 400. The default `is_latest == true` filter is in place |
 | 3.2 | The query is only trimmed |
 | 3.3, 3.4 | Not started; `stages.expand` is ignored |
 | 4.1 | No reranker; `stages.rerank` is ignored |

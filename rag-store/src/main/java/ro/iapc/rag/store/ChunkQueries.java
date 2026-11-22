@@ -24,16 +24,21 @@ public class ChunkQueries {
         this.jdbc = jdbc;
     }
 
-    /** Chunks of one document version with {@code chunk_index} in {@code [from, to]}, ordered by index. */
+    /**
+     * Published chunks of one document version with {@code chunk_index} in {@code [from, to]}, ordered by index. With
+     * a null {@code version}, every published version matches. Staged chunks (see {@link ChunkWriter}) never do.
+     */
     public List<Chunk> byIndexRange(VectorIndex index, String docId, String version, int from, int to) {
         String sql = "select id, content, metadata from " + index.tableName()
                 + " where metadata->>'" + MetadataKeys.DOC_ID + "' = ?"
+                + " and metadata->>'" + MetadataKeys.STAGED_VERSION + "' is null"
                 + " and (cast(? as text) is null or metadata->>'" + MetadataKeys.VERSION + "' = ?)"
                 + " and (metadata->>'" + MetadataKeys.CHUNK_INDEX + "')::int between ? and ?"
                 + " order by (metadata->>'" + MetadataKeys.CHUNK_INDEX + "')::int";
         return jdbc.query(sql, rowMapper(), docId, version, version, from, to);
     }
 
+    /** Every chunk of the document, staged ones included, so a delete reports what it removes. */
     public int countByDocId(VectorIndex index, String docId) {
         Integer count = jdbc.queryForObject(
                 "select count(*) from " + index.tableName() + " where metadata->>'" + MetadataKeys.DOC_ID + "' = ?",

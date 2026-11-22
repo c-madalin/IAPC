@@ -10,6 +10,9 @@ Turns a raw question and URL filters into ranked candidate chunks. Also serves n
   Rejects every filter with 400.
 - `RetrievalService.neighbors` and `GET /chunks/neighbors`.
 - `RetrievalProperties`: `rag.retrieval.*`.
+- Every search carries `RetrievalService.LATEST_ONLY` (`is_latest == true`). It also hides chunks that ingestion is
+  still writing. Task 3.1 must drop it when the request filters on `version`, and AND it with the parsed filters
+  otherwise.
 - Filters must become a Spring AI `Filter.Expression` (built with `FilterExpressionBuilder`), never a string from
   the request.
 

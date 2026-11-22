@@ -32,10 +32,13 @@ Response: `answer`, `citations[]`, `refused`, `rankedChunks[]`, `topSimilarity`,
 
 `POST /retrieve`. Body `{"query", "rawFilters": {"field": ["value", ...]}, "topN", "stages"}`. Returns
 `{"chunks": [...], "normalizedQuery"}`, best first. 400 for a blank query or invalid filters. The 400 for invalid
-filters must list the valid fields (Story 3 Task 1). The skeleton refuses every filter.
+filters must list the valid fields (Story 3 Task 1). Only chunks with `is_latest == true` are searched; a `version`
+filter will lift that once Story 3 Task 1 parses filters. The skeleton refuses every filter.
 
 `GET /chunks/neighbors?docId=&version=&index=&window=1`. Chunks of the same document version with `chunkIndex`
-in `[index - window, index + window]`, ordered by index. `version` is optional. `window` is 0 to 10.
+in `[index - window, index + window]`, ordered by index. `version` is optional; without it, chunks of every
+published version match, so retrieval-post should pass the chunk's version. Chunks still being written never match.
+`window` is 0 to 10.
 
 ## retrieval-post (Story 4)
 

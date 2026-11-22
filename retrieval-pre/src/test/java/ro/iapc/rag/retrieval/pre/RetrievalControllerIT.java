@@ -49,7 +49,8 @@ class RetrievalControllerIT {
                 .add(List.of(
                         chunk(0, "policy: incident response escalation within one hour"),
                         chunk(1, "policy: passwords rotate every ninety days"),
-                        chunk(2, "policy: backups are kept for one year")));
+                        chunk(2, "policy: backups are kept for one year"),
+                        oldVersion(1, "policy: how often do passwords rotate per policy, every thirty days")));
     }
 
     @Test
@@ -67,6 +68,20 @@ class RetrievalControllerIT {
                     json.assertThat()
                             .extractingPath("$.normalizedQuery")
                             .isEqualTo("how often do passwords rotate per policy");
+                });
+    }
+
+    @Test
+    void leavesOutChunksThatAreNotTheLatestVersion() {
+        assertThat(mvc.post()
+                        .uri("/retrieve")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"query\":\"how often do passwords rotate per policy\",\"topN\":10}"))
+                .hasStatusOk()
+                .bodyJson()
+                .satisfies(json -> {
+                    json.assertThat().extractingPath("$.chunks.length()").isEqualTo(3);
+                    json.assertThat().extractingPath("$.chunks[*].version").isEqualTo(List.of("1", "1", "1"));
                 });
     }
 
@@ -90,7 +105,7 @@ class RetrievalControllerIT {
 
     @Test
     void returnsNeighborsInOrder() {
-        assertThat(mvc.get().uri("/chunks/neighbors?docId=policy&index=1&window=1"))
+        assertThat(mvc.get().uri("/chunks/neighbors?docId=policy&version=1&index=1&window=1"))
                 .hasStatusOk()
                 .bodyJson()
                 .extractingPath("$.chunks[*].chunkIndex")
@@ -101,11 +116,37 @@ class RetrievalControllerIT {
         return Document.builder()
                 .text(text)
                 .metadata(Map.of(
-                        MetadataKeys.DOC_ID, "policy",
-                        MetadataKeys.VERSION, "1",
-                        MetadataKeys.SOURCE, "policy.pdf",
-                        MetadataKeys.PAGE, 1,
-                        MetadataKeys.CHUNK_INDEX, index))
+                        MetadataKeys.DOC_ID,
+                        "policy",
+                        MetadataKeys.VERSION,
+                        "1",
+                        MetadataKeys.SOURCE,
+                        "policy.pdf",
+                        MetadataKeys.PAGE,
+                        1,
+                        MetadataKeys.CHUNK_INDEX,
+                        index,
+                        MetadataKeys.IS_LATEST,
+                        true))
+                .build();
+    }
+
+    private static Document oldVersion(int index, String text) {
+        return Document.builder()
+                .text(text)
+                .metadata(Map.of(
+                        MetadataKeys.DOC_ID,
+                        "policy",
+                        MetadataKeys.VERSION,
+                        "0",
+                        MetadataKeys.SOURCE,
+                        "policy.pdf",
+                        MetadataKeys.PAGE,
+                        1,
+                        MetadataKeys.CHUNK_INDEX,
+                        index,
+                        MetadataKeys.IS_LATEST,
+                        false))
                 .build();
     }
 }

@@ -12,6 +12,8 @@ don't depend on which service ingested a document.
   `embedding_model`), written onto each chunk.
 - `Checksums`: SHA-256 hex of a resource or bytes.
 
+Write the chunks with rag-store's `ChunkWriter`, not with `VectorStore.add` directly.
+
 Changing main code here changes the pipeline hash, so run `make eval` (see the `eval-regression` skill).
 
 ## Tests

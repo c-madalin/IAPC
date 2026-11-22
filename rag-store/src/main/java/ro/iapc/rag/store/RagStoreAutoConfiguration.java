@@ -43,6 +43,12 @@ public class RagStoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    ChunkWriter chunkWriter(VectorStoreProvider stores, JdbcTemplate jdbc, TransactionTemplate tx) {
+        return new ChunkWriter(stores, jdbc, tx);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     ManifestRepository manifestRepository(JdbcTemplate jdbc) {
         return new ManifestRepository(jdbc);
     }
