@@ -48,3 +48,22 @@ history.
 - 2026-11-22. All prose in the repo goes through the `unslop` skill, and every change updates the matching page in
   `docs/` in the same commit. Both rules are in `AGENTS.md`. The repo copy of `unslop` drops
   `disable-model-invocation` so agents can load it themselves.
+
+### 2026-11-22: shared groundwork for parallel story work
+
+Agreed by the whole team before the stories split up. The groundwork lands in one PR, so every story builds on the
+same shared code.
+
+| Topic | Decision | Why |
+|---|---|---|
+| Chunk scores | `Chunk` gets a `similarity` field that always holds the cosine similarity from the vector search. `score` holds the ranking score of the latest stage (RRF after multi-query, reranker score after reranking). When fusion sees the same chunk more than once, it keeps the highest similarity. The "I don't know" threshold (4.3) reads `similarity` | Fusion and reranking would otherwise overwrite the value the threshold compares against |
+| Filter syntax (3.1) | Bracket operators in the URL: `?source=a.pdf&source=b.pdf&page[gte]=3`. Repeated values of one field are OR, different fields are AND. Operators: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in` | Every key maps to one `FilterExpressionBuilder` call; no parser or escaping rules. OR across different fields isn't possible yet (see open items) |
+| Latest version by default (2.2, 3.1) | retrieval-pre adds `is_latest == true` to every search, unless the request filters on `version` | One rule for every caller. It also hides chunks that are still being written (see "Chunk writes") |
+| Watcher folder (2.3) | ingest-dynamic watches its own drop folder, not `./resources` | Story 2 doesn't wait for Story 1's update and delete work, and no file goes through both ingestion paths |
+| Chunker | New `rag-ingest` module with PDF reading, splitting and metadata. Only the two ingestion services depend on it. Story 1 owns it | Remote PDFs (2.1) need the same chunking as local ones, and retrieval services shouldn't carry PDF libraries |
+| Manifest | `ManifestRepository` and `ManifestEntry` move to rag-store, next to the migration that creates the table. A `source_type` column (`static` or `dynamic`) is added. Story 1 still owns the schema | Both ingestion services write to the manifest, so reconciliation (1.4) covers dynamic rows too |
+| Chunk writes (1.2, 2.2) | Stage, then flip. New chunks are written hidden (`is_latest=false`, version kept under `staged_version`). One short transaction then retires the old chunks (deleted for static documents, flagged `is_latest=false` for dynamic ones) and publishes the new ones. `ChunkWriter` in rag-store does this | The embedding calls happen outside the transaction, so it stays short. Queries never see a mix or an empty result, and a failure leaves the previous version in place |
+| Chat model in retrieval-pre (3.4) | retrieval-pre gets its own chat model configuration and model setting, copied from retrieval-post | Story 3 can use a smaller, faster model for query variants, and there's no shared change for 20 lines |
+| Re-index (1.4) | Re-embed the stored chunk text from the active table into the new model's table | Old web versions can't be fetched again, and this needs neither `./resources` nor the network |
+| Dynamic doc ids (2.1) | `web:<normalized URL>` for pages and remote files, `repo:<owner>/<repo>/<path>` for repository docs. Normalized means lowercase scheme and host, no fragment or default port, no trailing slash, sorted query parameters. Endpoints take the id as a query parameter | Readable in the golden set, logs and Postman |
+| Golden set (4.4) | The Story 4 owner owns the file and writes the 10 out-of-scope questions. Every other owner appends about 5 questions that exercise their stage | Each stage's with/without measurement needs questions that touch that stage |

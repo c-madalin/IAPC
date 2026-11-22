@@ -15,6 +15,9 @@ Everything still undecided or stubbed, in one place. When you resolve one, delet
 | Numeric targets to agree with the product owner | Watcher latency (30 s proposed), ReDoS time limit, multi-query latency and token caps, similarity threshold, eval tolerance (0.02) | each story owner |
 | Second embedding model for the re-index demo | `mxbai-embed-large` (1024 dims) is listed in `rag.store.models` as a candidate | Story 1 |
 | Golden set size | 14 starter questions in `eval/data/golden-set.json`; Story 4 Task 4 needs at least 30 including unanswerable ones | Story 4 |
+| OR across different filter fields | The bracket syntax (decisions, 2026-11-22) has OR only within one field. Ask the product owner whether Story 3 Task 1's "AND/OR" needs `source=a OR page>5` | Story 3 |
+| Where the cross-encoder runs | Story 4 Task 1. Not checked whether Ollama can serve a reranker; it may need its own Compose service | Story 4 |
+| Fewer than topN results with filters | pgvector's HNSW index filters after the index scan, so once old versions pile up, a default `is_latest` search can return fewer than `topN` chunks. Check `hnsw.ef_search` or iterative scans when it shows up | Stories 2 and 3 |
 | Postman collection | Story 3 Task 1 requires one committed; no folder exists yet (suggest `docs/postman/`) | Story 3 |
 
 ## Stubs in the walking skeleton
