@@ -17,7 +17,9 @@ CI runs both on every PR. Coverage (JaCoCo, unit plus integration) is in the job
   share none have similarity 0. Note that a similarity search with threshold 0 excludes chunks with no word in
   common with the query.
 - `FakeChatModel`: returns a fixed answer or `respondWith(prompt -> ...)`, can `failWith(exception)`, and keeps
-  every prompt for assertions (`lastPrompt()`).
+  every prompt for assertions (`lastPrompt()`). Each response carries token usage, by default the word counts of
+  the prompt and the answer. `reportUsage(prompt, completion)` fixes the numbers, for testing a token cap.
+  `reportNoUsage()` leaves usage out, and Spring AI then reports 0 tokens.
 - `FakeModels`: `@Import` it to replace Ollama with both fakes in a Spring test.
 - `PgvectorTestcontainer`: `@Import` it to get a pgvector Postgres wired as the DataSource. Flyway runs the
   migrations if the module has Flyway on its test classpath (retrieval-pre and rag-store do).

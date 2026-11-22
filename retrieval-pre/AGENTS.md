@@ -33,5 +33,6 @@ Story 2 Task 2 needs a default `is_latest == true` filter; agree with the Story 
 
 ## Tests
 
-`RetrievalControllerIT` shows HTTP plus database. Normalization, acronyms and filter parsing are pure logic: test
+`RetrievalControllerIT` shows HTTP plus database. For 3.4, `FakeChatModel` from rag-test-support reports token
+usage (`reportUsage(prompt, completion)`), so the cap can be tested without Ollama. Normalization, acronyms and filter parsing are pure logic: test
 them as plain JUnit tests, parameterised with `@ParameterizedTest` and `@CsvSource` for the 15-case table.
