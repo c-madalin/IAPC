@@ -10,7 +10,8 @@ pgvector access shared by ingest-static, ingest-dynamic and retrieval-pre.
   with `staged_version`, because the `is_latest` filter doesn't apply to it.
 - `ChunkWriter`: the only way ingestion writes chunks. `write(index, docId, chunks, Retire.DELETE | FLAG)` stages the
   chunks hidden, then retires the old ones and publishes the new ones in one transaction (docs/architecture.md,
-  "Writing a document version").
+  "Writing a document version"). It logs at DEBUG only; the caller logs the ingestion once at INFO with the counts
+  from `Result`.
 - `ChunkMapper`: Spring AI `Document` to `Chunk`.
 - `ManifestRepository` / `ManifestEntry`: the `ingestion_manifest` table, written by both ingestion services.
   `source_type` says which one. Story 1 owns the schema.

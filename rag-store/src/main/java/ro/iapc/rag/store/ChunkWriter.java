@@ -53,7 +53,8 @@ public class ChunkWriter {
     public Result write(VectorIndex index, String docId, List<Document> chunks, Retire retire) {
         String version = stage(index, docId, chunks);
         Result result = publish(index, docId, version, ids(chunks), retire);
-        log.info(
+        // DEBUG because the calling service logs the ingestion itself, with the counts from Result.
+        log.debug(
                 "Published {} chunks of {} version {} into {}, {} old chunks {}",
                 result.published(),
                 docId,

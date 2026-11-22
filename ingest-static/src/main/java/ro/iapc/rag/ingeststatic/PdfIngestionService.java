@@ -87,7 +87,7 @@ public class PdfIngestionService {
                 .applyTo(new PdfChunker(properties.chunkSize()).chunk(pdf));
 
         // TODO(story-1-task-2): skip the file when its checksum matches the manifest.
-        chunkWriter.write(index, docId, chunks, ChunkWriter.Retire.DELETE);
+        ChunkWriter.Result written = chunkWriter.write(index, docId, chunks, ChunkWriter.Retire.DELETE);
 
         ManifestEntry entry = new ManifestEntry(
                 docId,
@@ -101,7 +101,13 @@ public class PdfIngestionService {
                 null);
         manifest.upsert(entry);
         meters.counter(MetricNames.INGESTED_CHUNKS, "source_type", "static").increment(chunks.size());
-        log.info("Ingested {} as {} ({} chunks into {})", filename, docId, chunks.size(), index.tableName());
+        log.info(
+                "Ingested {} as {} ({} chunks into {}, {} old chunks deleted)",
+                filename,
+                docId,
+                written.published(),
+                index.tableName(),
+                written.retired());
         return entry;
     }
 
