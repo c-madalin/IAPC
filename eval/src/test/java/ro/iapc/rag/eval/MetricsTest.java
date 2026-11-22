@@ -32,7 +32,7 @@ class MetricsTest {
 
     @Test
     void citationOutsideContextIsNotGrounded() {
-        Chunk chunk = new Chunk("1", "doc-a", "1", "a.pdf", 1, 0, "text", 0.9);
+        Chunk chunk = new Chunk("1", "doc-a", "1", "a.pdf", 1, 0, "text", 0.9, 0.9);
         AskResponse grounded = new AskResponse(
                 "x", List.of(new Citation("doc-a", "a.pdf", "1", 1)), false, List.of(chunk), 0.9, "q", null);
         AskResponse invented = new AskResponse(

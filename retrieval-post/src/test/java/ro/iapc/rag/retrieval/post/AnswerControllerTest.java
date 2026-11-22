@@ -20,7 +20,7 @@ class AnswerControllerTest {
     private static final String ONE_CHUNK = """
             {"query":"How often do passwords rotate?","chunks":[
               {"id":"1","docId":"policy","version":"1","source":"policy.pdf","page":3,"chunkIndex":4,
-               "text":"Passwords rotate every 90 days.","score":0.82}]}
+               "text":"Passwords rotate every 90 days.","score":0.31,"similarity":0.82}]}
             """;
 
     @Autowired
@@ -45,6 +45,20 @@ class AnswerControllerTest {
                     json.assertThat().extractingPath("$.topSimilarity").isEqualTo(0.82);
                 });
         assertThat(chatModel.lastPrompt().getContents()).contains("CONTEXT [source: policy.pdf, version: 1, page: 3]");
+    }
+
+    @Test
+    void topSimilarityIsNullWhenNoChunkHasASimilarity() {
+        chatModel.respondWith(prompt -> "Every 90 days [source: policy.pdf, version: 1, page: 3]");
+
+        assertThat(mvc.post()
+                        .uri("/answer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(ONE_CHUNK.replace(",\"similarity\":0.82", "")))
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.topSimilarity")
+                .isNull();
     }
 
     @Test

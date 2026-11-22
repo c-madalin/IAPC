@@ -63,6 +63,7 @@ class RetrievalControllerIT {
                 .satisfies(json -> {
                     json.assertThat().extractingPath("$.chunks.length()").isEqualTo(2);
                     json.assertThat().extractingPath("$.chunks[0].chunkIndex").isEqualTo(1);
+                    json.assertThat().extractingPath("$.chunks[0].similarity").isNotNull();
                     json.assertThat()
                             .extractingPath("$.normalizedQuery")
                             .isEqualTo("how often do passwords rotate per policy");

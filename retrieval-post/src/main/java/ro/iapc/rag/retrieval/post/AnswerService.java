@@ -54,7 +54,7 @@ public class AnswerService {
         }
         List<Chunk> chunks = request.chunks() == null ? List.of() : request.chunks();
         Double topSimilarity = chunks.stream()
-                .map(Chunk::score)
+                .map(Chunk::similarity)
                 .filter(Objects::nonNull)
                 .max(Double::compare)
                 .orElse(null);

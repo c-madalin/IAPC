@@ -22,7 +22,8 @@ Turns a raw question and URL filters into ranked candidate chunks. Also serves n
 - [ ] 3.3 Acronym dictionary in an external editable file (for example `src/main/resources/acronyms.yml`, overridable
   by a file path); search uses acronym and full form; word boundaries; zero matches pass through.
 - [ ] 3.4 Configurable number of variants with result fusion (RRF); latency and token cost logged with a cap;
-  fallback to the original query on failure or timeout; recall@k with and without (use `stages.expand` and
+  fallback to the original query on failure or timeout; the fused score goes into `Chunk.score`, and
+  `Chunk.similarity` keeps the highest similarity over all variants; recall@k with and without (use `stages.expand` and
   `make eval ARGS="--eval.expand=false"`).
 
 Story 2 Task 2 needs a default `is_latest == true` filter; agree with the Story 2 owner on how it's applied.

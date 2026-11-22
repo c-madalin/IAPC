@@ -6,8 +6,14 @@ Errors are RFC 9457 problem responses (`application/problem+json`) with `status`
 
 ## Shared types
 
-`Chunk`: `id`, `docId`, `version`, `source`, `page`, `chunkIndex`, `text`, `score`. `score` is the vector
-similarity (0 to 1, higher is closer) coming out of retrieval-pre and the reranker score after retrieval-post reranks.
+`Chunk`: `id`, `docId`, `version`, `source`, `page`, `chunkIndex`, `text`, `score`, `similarity`.
+
+- `similarity` is the cosine similarity to the query (0 to 1, higher is closer). The vector search sets it and no
+  later stage changes it. After multi-query it is the highest similarity over all query variants. retrieval-post's
+  `topSimilarity` and the "I don't know" threshold use it.
+- `score` is the ranking score of the last stage that ordered the chunks: the similarity out of the plain vector
+  search, the fused score after multi-query, the reranker score after reranking. Only compare scores from the same
+  stage.
 
 `Stages`: `expand`, `rerank`, `stitch`, each a nullable boolean. `null` means "use the service default". The eval
 sets them to measure the pipeline with and without each stage.
