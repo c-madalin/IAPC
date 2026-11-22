@@ -18,6 +18,8 @@ import ro.iapc.rag.ingest.Checksums;
 import ro.iapc.rag.ingest.ChunkMetadata;
 import ro.iapc.rag.ingest.PdfChunker;
 import ro.iapc.rag.store.ChunkQueries;
+import ro.iapc.rag.store.ManifestEntry;
+import ro.iapc.rag.store.ManifestRepository;
 import ro.iapc.rag.store.VectorIndex;
 import ro.iapc.rag.store.VectorStoreProvider;
 
@@ -88,7 +90,15 @@ public class PdfIngestionService {
         store.add(chunks);
 
         ManifestEntry entry = new ManifestEntry(
-                docId, "1", filename, checksum, index.embeddingModel(), index.tableName(), chunks.size(), null);
+                docId,
+                "1",
+                filename,
+                ManifestEntry.SourceType.STATIC,
+                checksum,
+                index.embeddingModel(),
+                index.tableName(),
+                chunks.size(),
+                null);
         manifest.upsert(entry);
         meters.counter(MetricNames.INGESTED_CHUNKS, "source_type", "static").increment(chunks.size());
         log.info("Ingested {} as {} ({} chunks into {})", filename, docId, chunks.size(), index.tableName());

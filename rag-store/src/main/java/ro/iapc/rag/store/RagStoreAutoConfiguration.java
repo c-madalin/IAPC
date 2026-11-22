@@ -40,4 +40,10 @@ public class RagStoreAutoConfiguration {
     ChunkQueries chunkQueries(JdbcTemplate jdbc) {
         return new ChunkQueries(jdbc);
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    ManifestRepository manifestRepository(JdbcTemplate jdbc) {
+        return new ManifestRepository(jdbc);
+    }
 }

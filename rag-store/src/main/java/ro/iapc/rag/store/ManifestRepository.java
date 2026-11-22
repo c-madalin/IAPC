@@ -1,18 +1,21 @@
-package ro.iapc.rag.ingeststatic;
+package ro.iapc.rag.store;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
 
-@Repository
+/**
+ * Reads and writes {@code ingestion_manifest}. Both ingestion services write through it, so reconciliation (Story 1
+ * Task 4) sees static and dynamic documents in one table.
+ */
 public class ManifestRepository {
 
     private static final RowMapper<ManifestEntry> ROW = (rs, i) -> new ManifestEntry(
             rs.getString("doc_id"),
             rs.getString("version"),
             rs.getString("source"),
+            ManifestEntry.SourceType.fromColumn(rs.getString("source_type")),
             rs.getString("checksum"),
             rs.getString("embedding_model"),
             rs.getString("table_name"),
@@ -29,15 +32,18 @@ public class ManifestRepository {
         jdbc.update(
                 """
                 insert into ingestion_manifest
-                    (doc_id, version, source, checksum, embedding_model, table_name, chunk_count, ingested_at)
-                values (?, ?, ?, ?, ?, ?, ?, now())
+                    (doc_id, version, source, source_type, checksum, embedding_model, table_name, chunk_count,
+                     ingested_at)
+                values (?, ?, ?, ?, ?, ?, ?, ?, now())
                 on conflict (doc_id, version, table_name) do update set
-                    source = excluded.source, checksum = excluded.checksum, embedding_model = excluded.embedding_model,
-                    chunk_count = excluded.chunk_count, ingested_at = now()
+                    source = excluded.source, source_type = excluded.source_type, checksum = excluded.checksum,
+                    embedding_model = excluded.embedding_model, chunk_count = excluded.chunk_count,
+                    ingested_at = now()
                 """,
                 e.docId(),
                 e.version(),
                 e.source(),
+                e.sourceType().column(),
                 e.checksum(),
                 e.embeddingModel(),
                 e.tableName(),

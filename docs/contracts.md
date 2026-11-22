@@ -48,7 +48,9 @@ refuses without calling the model when there are no chunks.
 - `POST /documents/sync`: ingests every PDF in `rag.ingest.resources`, returns the manifest entries written. A
   failing file is logged and skipped.
 - `DELETE /documents/{docId}`: removes all chunks of the document, 404 if it has none.
-- `GET /manifest`: every manifest row.
+- `GET /manifest`: every manifest row: `docId`, `version`, `source`, `sourceType` (`STATIC` or `DYNAMIC`),
+  `checksum`, `embeddingModel`, `tableName`, `chunkCount`, `ingestedAt`. Rows written by ingest-dynamic show up here
+  too.
 
 ## ingest-dynamic (Story 2)
 

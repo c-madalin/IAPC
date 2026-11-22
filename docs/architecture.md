@@ -45,7 +45,8 @@ A 4xx from a stage passes through to the client. Anything else from a stage beco
   `metadata->>'doc_id'`.
 - `index_registry` lists the vector tables with their model and dimensions and marks the active one. A unique
   partial index allows at most one active row. Services cache the active index for 5 seconds.
-- `ingestion_manifest` has one row per document version and table. Story 1 Task 4 extends it.
+- `ingestion_manifest` has one row per document version and table, with `source_type` `static` or `dynamic`. Both
+  ingestion services write it through rag-store's `ManifestRepository`. Story 1 Task 4 extends it.
 - Flyway migrations live in `rag-store/src/main/resources/db/migration`. Only ingest-static runs Flyway; other
   services wait for ingest-static to be healthy, which avoids several services racing to create the schema.
 

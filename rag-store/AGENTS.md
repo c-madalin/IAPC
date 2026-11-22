@@ -8,8 +8,11 @@ pgvector access shared by ingest-static, ingest-dynamic and retrieval-pre.
 - `EmbeddingModelFactory` / `OllamaEmbeddingModelFactory`: one embedding model per model name. Tests replace it.
 - `ChunkQueries`: metadata lookups a similarity search can't do (index ranges, counts).
 - `ChunkMapper`: Spring AI `Document` to `Chunk`.
+- `ManifestRepository` / `ManifestEntry`: the `ingestion_manifest` table, written by both ingestion services.
+  `source_type` says which one. Story 1 owns the schema.
 - `src/main/resources/db/migration`: Flyway migrations, run by ingest-static only. New file per change
   (`V2__...sql`); never edit a merged one. The Story 1 owner reviews these.
 - `rag.store.models` defaults live in `RagStoreProperties`.
 
-`VectorStoreProviderIT` covers creation, search, neighbors and switching the active index.
+`VectorStoreProviderIT` covers creation, search, neighbors and switching the active index. `ManifestRepositoryIT`
+covers the manifest.
