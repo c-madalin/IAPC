@@ -73,4 +73,24 @@ class DocumentControllerIT {
 
         assertThat(mvc.delete().uri("/documents/{id}", "static:missing.pdf")).hasStatus(404);
     }
+
+    @Test
+    void reconcilesAndReindexesToAnotherModel() {
+        mvc.post().uri("/documents/sync").exchange();
+
+        assertThat(mvc.get().uri("/manifest/reconcile"))
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.drift")
+                .isEqualTo(0);
+
+        assertThat(mvc.post().uri("/indexes/reindex?model=mxbai-embed-large"))
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.toTable")
+                .isEqualTo("vector_store_mxbai_embed_large");
+
+        assertThat(stores.activeIndex().embeddingModel()).isEqualTo("mxbai-embed-large");
+        assertThat(mvc.post().uri("/indexes/reindex?model=mxbai-embed-large")).hasStatus(400);
+    }
 }
