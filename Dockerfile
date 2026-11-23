@@ -1,7 +1,7 @@
 # One image per service: docker build --build-arg MODULE=retrieval-pre .
 # The build stage doesn't depend on MODULE, so BuildKit builds the reactor once and every service reuses it.
 
-FROM eclipse-temurin:21-jdk AS build
+FROM eclipse-temurin:24-jdk AS build
 WORKDIR /src
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/root/.m2 ./mvnw -B -q dependency:go-offline -Dexc
 COPY . .
 RUN --mount=type=cache,target=/root/.m2 ./mvnw -B -q package -DskipTests -Dspotless.check.skip=true -Djacoco.skip=true
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:24-jre
 ARG MODULE
 RUN useradd --system --uid 10001 app
 WORKDIR /app
