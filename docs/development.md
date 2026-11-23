@@ -62,6 +62,8 @@ curl -X POST localhost:8080/api/ask -H 'Content-Type: application/json' -d '{"qu
 curl -X POST localhost:8080/retrieval-pre/retrieve -H 'Content-Type: application/json' -d '{"query":"MFA","topN":5}'
 curl -X POST localhost:8080/ingest-static/documents/sync
 curl localhost:8080/ingest-static/manifest
+scripts/reconcile.sh
+curl -X POST "localhost:8080/ingest-static/indexes/reindex?model=mxbai-embed-large"
 curl localhost:8761/eureka/apps -H 'Accept: application/json'     # what's registered
 ```
 

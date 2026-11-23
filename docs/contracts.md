@@ -54,6 +54,10 @@ refuses without calling the model when there are no chunks.
 - `GET /manifest`: every manifest row: `docId`, `version`, `source`, `sourceType` (`STATIC` or `DYNAMIC`),
   `checksum`, `embeddingModel`, `tableName`, `chunkCount`, `ingestedAt`. Rows written by ingest-dynamic show up here
   too.
+- `GET /manifest/reconcile`: compares manifest chunk counts with the active vector table and returns the index,
+  entry count, manifest count, actual count and drift.
+- `POST /indexes/reindex?model=<embedding-model>`: copies latest chunks into a new vector table, reconciles it and
+  activates it only when there is no drift.
 
 ## ingest-dynamic (Story 2)
 

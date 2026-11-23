@@ -47,6 +47,21 @@ public class ChunkQueries {
         return count == null ? 0 : count;
     }
 
+    /** Published latest chunks in reading order. Staged chunks are never copied during re-indexing. */
+    public List<Document> findLatest(VectorIndex index) {
+        String sql = "select id, content, metadata from " + index.tableName()
+                + " where metadata->>'" + MetadataKeys.IS_LATEST + "' = 'true'"
+                + " and metadata->>'" + MetadataKeys.STAGED_VERSION + "' is null"
+                + " order by metadata->>'" + MetadataKeys.DOC_ID + "',"
+                + " (metadata->>'" + MetadataKeys.CHUNK_INDEX + "')::int";
+        return jdbc.query(
+                sql,
+                (rs, i) -> Document.builder()
+                        .text(rs.getString("content"))
+                        .metadata(JSON.readValue(rs.getString("metadata"), MAP))
+                        .build());
+    }
+
     private static RowMapper<Chunk> rowMapper() {
         return (rs, i) -> ChunkMapper.toChunk(Document.builder()
                 .id(rs.getString("id"))
