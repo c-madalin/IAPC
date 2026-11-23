@@ -27,7 +27,7 @@ Everything still undecided or stubbed, in one place. When you resolve one, delet
 | Story / task | Stub today |
 |---|---|
 | 1.1 | The chunking implementation needs a 20-chunk manual text-quality check |
-| 1.2 | No checksum skip. Replacement is atomic through `ChunkWriter`; no chunk-count test after an update yet |
+| 1.2 | Changed-PDF integration test and mid-update failure test need final coverage |
 | 1.3 | Delete works; there's no orphan check |
 | 1.4 | Manifest table and `/manifest` exist; no reconciliation script or re-index endpoint (the store API supports it) |
 | 2.1 to 2.4 | ingest-dynamic endpoints return 501 |

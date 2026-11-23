@@ -2,6 +2,7 @@ package ro.iapc.rag.store;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -52,6 +53,16 @@ public class ManifestRepository {
 
     public List<ManifestEntry> findAll() {
         return jdbc.query("select * from ingestion_manifest order by doc_id, version", ROW);
+    }
+
+    public Optional<ManifestEntry> findLatest(String docId, String tableName) {
+        List<ManifestEntry> rows = jdbc.query(
+                "select * from ingestion_manifest where doc_id = ? and table_name = ?"
+                        + " order by ingested_at desc limit 1",
+                ROW,
+                docId,
+                tableName);
+        return rows.stream().findFirst();
     }
 
     public int deleteByDocId(String docId, String tableName) {
