@@ -29,7 +29,6 @@ Everything still undecided or stubbed, in one place. When you resolve one, delet
 | 1.1 | Page-based PDF reading and `TokenTextSplitter` without overlap or structure awareness |
 | 1.2 | No checksum skip. Replacement is atomic through `ChunkWriter`; no chunk-count test after an update yet |
 | 1.3 | Delete works; there's no orphan check |
-| 1.4 | Re-index is implemented; a second-model integration run and reconciliation demo remain |
 | 2.1 to 2.4 | ingest-dynamic endpoints return 501 |
 | 3.1 | Any filter is rejected with 400. The default `is_latest == true` filter is in place |
 | 3.2 | The query is only trimmed |
