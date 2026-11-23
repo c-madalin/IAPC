@@ -84,7 +84,7 @@ public class PdfIngestionService {
         String checksum = Checksums.sha256(pdf);
 
         List<Document> chunks = new ChunkMetadata(docId, "1", filename, checksum, index.embeddingModel())
-                .applyTo(new PdfChunker(properties.chunkSize()).chunk(pdf));
+                .applyTo(new PdfChunker(properties.chunkSize(), properties.chunkOverlap()).chunk(pdf));
 
         // TODO(story-1-task-2): skip the file when its checksum matches the manifest.
         ChunkWriter.Result written = chunkWriter.write(index, docId, chunks, ChunkWriter.Retire.DELETE);
@@ -111,8 +111,11 @@ public class PdfIngestionService {
         return entry;
     }
 
-    /** Returns the number of chunks removed; 0 means the document was not in the index. */
-    public int delete(String docId) {
+    /** Result of deleting a static document and checking for leftover vectors. */
+    public record DeleteResult(int removedChunks, int orphanedVectors) {}
+
+    /** Returns the number of chunks removed and the orphan count after the delete. */
+    public DeleteResult delete(String docId) {
         VectorIndex index = stores.activeIndex();
         int count = chunkQueries.countByDocId(index, docId);
         if (count > 0) {
@@ -122,8 +125,9 @@ public class PdfIngestionService {
                             .build());
         }
         manifest.deleteByDocId(docId, index.tableName());
-        log.info("Deleted {} chunks of {}", count, docId);
-        return count;
+        int orphanedVectors = chunkQueries.countOrphans(index);
+        log.info("Deleted {} chunks of {}; {} orphaned vectors remain", count, docId, orphanedVectors);
+        return new DeleteResult(count, orphanedVectors);
     }
 
     static String docIdFor(String filename) {

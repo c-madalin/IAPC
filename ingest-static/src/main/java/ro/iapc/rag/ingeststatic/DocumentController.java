@@ -30,11 +30,14 @@ public class DocumentController {
 
     @DeleteMapping("/documents/{docId}")
     public Map<String, Object> delete(@PathVariable String docId) {
-        int removed = ingestion.delete(docId);
-        if (removed == 0) {
+        PdfIngestionService.DeleteResult result = ingestion.delete(docId);
+        if (result.removedChunks() == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No document with doc_id " + docId);
         }
-        return Map.of("docId", docId, "removedChunks", removed);
+        return Map.of(
+                "docId", docId,
+                "removedChunks", result.removedChunks(),
+                "orphanedVectors", result.orphanedVectors());
     }
 
     @GetMapping("/manifest")

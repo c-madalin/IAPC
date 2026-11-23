@@ -20,3 +20,4 @@ rag:
     resources: ${INGEST_RESOURCES:file:./resources/*.pdf}
     sync-on-startup: ${INGEST_SYNC_ON_STARTUP:false}
     chunk-size: ${CHUNK_SIZE:400}
+    chunk-overlap: ${CHUNK_OVERLAP:50}
