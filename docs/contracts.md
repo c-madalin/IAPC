@@ -6,8 +6,14 @@ Errors are RFC 9457 problem responses (`application/problem+json`) with `status`
 
 ## Shared types
 
-`Chunk`: `id`, `docId`, `version`, `source`, `page`, `chunkIndex`, `text`, `score`. `score` is the vector
-similarity (0 to 1, higher is closer) coming out of retrieval-pre and the reranker score after retrieval-post reranks.
+`Chunk`: `id`, `docId`, `version`, `source`, `page`, `chunkIndex`, `text`, `score`, `similarity`.
+
+- `similarity` is the cosine similarity to the query (0 to 1, higher is closer). The vector search sets it and no
+  later stage changes it. After multi-query it is the highest similarity over all query variants. retrieval-post's
+  `topSimilarity` and the "I don't know" threshold use it.
+- `score` is the ranking score of the last stage that ordered the chunks: the similarity out of the plain vector
+  search, the fused score after multi-query, the reranker score after reranking. Only compare scores from the same
+  stage.
 
 `Stages`: `expand`, `rerank`, `stitch`, each a nullable boolean. `null` means "use the service default". The eval
 sets them to measure the pipeline with and without each stage.
@@ -26,10 +32,13 @@ Response: `answer`, `citations[]`, `refused`, `rankedChunks[]`, `topSimilarity`,
 
 `POST /retrieve`. Body `{"query", "rawFilters": {"field": ["value", ...]}, "topN", "stages"}`. Returns
 `{"chunks": [...], "normalizedQuery"}`, best first. 400 for a blank query or invalid filters. The 400 for invalid
-filters must list the valid fields (Story 3 Task 1). The skeleton refuses every filter.
+filters must list the valid fields (Story 3 Task 1). Only chunks with `is_latest == true` are searched; a `version`
+filter will lift that once Story 3 Task 1 parses filters. The skeleton refuses every filter.
 
 `GET /chunks/neighbors?docId=&version=&index=&window=1`. Chunks of the same document version with `chunkIndex`
-in `[index - window, index + window]`, ordered by index. `version` is optional. `window` is 0 to 10.
+in `[index - window, index + window]`, ordered by index. `version` is optional; without it, chunks of every
+published version match, so retrieval-post should pass the chunk's version. Chunks still being written never match.
+`window` is 0 to 10.
 
 ## retrieval-post (Story 4)
 
@@ -42,7 +51,9 @@ refuses without calling the model when there are no chunks.
 - `POST /documents/sync`: ingests every PDF in `rag.ingest.resources`, returns the manifest entries written. A
   failing file is logged and skipped.
 - `DELETE /documents/{docId}`: removes all chunks of the document, 404 if it has none.
-- `GET /manifest`: every manifest row.
+- `GET /manifest`: every manifest row: `docId`, `version`, `source`, `sourceType` (`STATIC` or `DYNAMIC`),
+  `checksum`, `embeddingModel`, `tableName`, `chunkCount`, `ingestedAt`. Rows written by ingest-dynamic show up here
+  too.
 
 ## ingest-dynamic (Story 2)
 

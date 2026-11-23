@@ -10,6 +10,9 @@ Turns a raw question and URL filters into ranked candidate chunks. Also serves n
   Rejects every filter with 400.
 - `RetrievalService.neighbors` and `GET /chunks/neighbors`.
 - `RetrievalProperties`: `rag.retrieval.*`.
+- Every search carries `RetrievalService.LATEST_ONLY` (`is_latest == true`). It also hides chunks that ingestion is
+  still writing. Task 3.1 must drop it when the request filters on `version`, and AND it with the parsed filters
+  otherwise.
 - Filters must become a Spring AI `Filter.Expression` (built with `FilterExpressionBuilder`), never a string from
   the request.
 
@@ -22,12 +25,14 @@ Turns a raw question and URL filters into ranked candidate chunks. Also serves n
 - [ ] 3.3 Acronym dictionary in an external editable file (for example `src/main/resources/acronyms.yml`, overridable
   by a file path); search uses acronym and full form; word boundaries; zero matches pass through.
 - [ ] 3.4 Configurable number of variants with result fusion (RRF); latency and token cost logged with a cap;
-  fallback to the original query on failure or timeout; recall@k with and without (use `stages.expand` and
+  fallback to the original query on failure or timeout; the fused score goes into `Chunk.score`, and
+  `Chunk.similarity` keeps the highest similarity over all variants; recall@k with and without (use `stages.expand` and
   `make eval ARGS="--eval.expand=false"`).
 
 Story 2 Task 2 needs a default `is_latest == true` filter; agree with the Story 2 owner on how it's applied.
 
 ## Tests
 
-`RetrievalControllerIT` shows HTTP plus database. Normalization, acronyms and filter parsing are pure logic: test
+`RetrievalControllerIT` shows HTTP plus database. For 3.4, `FakeChatModel` from rag-test-support reports token
+usage (`reportUsage(prompt, completion)`), so the cap can be tested without Ollama. Normalization, acronyms and filter parsing are pure logic: test
 them as plain JUnit tests, parameterised with `@ParameterizedTest` and `@CsvSource` for the 15-case table.

@@ -4,7 +4,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.filter.Filter;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.stereotype.Service;
+import ro.iapc.rag.common.MetadataKeys;
 import ro.iapc.rag.common.api.Chunk;
 import ro.iapc.rag.common.api.RetrieveRequest;
 import ro.iapc.rag.common.api.RetrieveResponse;
@@ -22,6 +25,13 @@ import ro.iapc.rag.store.VectorStoreProvider;
 public class RetrievalService {
 
     private static final Logger log = LoggerFactory.getLogger(RetrievalService.class);
+
+    /**
+     * Applied to every search, so old versions and chunks that are still being written stay out of results.
+     * TODO(story-3-task-1): drop it when the request filters on {@code version}, and AND it with the parsed filters.
+     */
+    static final Filter.Expression LATEST_ONLY =
+            new FilterExpressionBuilder().eq(MetadataKeys.IS_LATEST, true).build();
 
     private final VectorStoreProvider stores;
     private final ChunkQueries chunkQueries;
@@ -56,6 +66,7 @@ public class RetrievalService {
                                 .query(normalized)
                                 .topK(topN)
                                 .similarityThresholdAll()
+                                .filterExpression(LATEST_ONLY)
                                 .build())
                         .stream()
                         .map(ChunkMapper::toChunk)

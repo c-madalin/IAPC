@@ -24,6 +24,9 @@ cited answer or "I don't know".
   "I don't know"; threshold justified with eval data (`topSimilarity` is in every eval result); all 10 out-of-scope
   questions refused.
 
+The reranker writes its score into `Chunk.score` with `withScore`. The threshold compares `Chunk.similarity`, which
+no stage overwrites.
+
 The eval harness (Task 4.4) lives in the `eval` module; see its AGENTS.md.
 
 Ollama has no reranking API. Options: run a cross-encoder through ONNX Runtime or DJL in this service, or a small

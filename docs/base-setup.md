@@ -37,6 +37,7 @@ The Maven wrapper pins Maven 3.9.16, so nobody needs Maven installed.
 | `rag-common` | none | Request and response records, `MetadataKeys`, `ServiceNames`, `MetricNames` |
 | `rag-platform` | none | Shared Spring setup: logging, OTLP export, error handling, `ServiceClients`, `StageTimer`, the `hostdev` profile |
 | `rag-store` | none | `IndexRegistry`, `VectorStoreProvider`, `ChunkQueries`, Ollama embedding models, Flyway migrations |
+| `rag-ingest` | none | Chunking shared by both ingestion services: `PdfChunker`, `ChunkMetadata`, `Checksums`. Story 1 owns it |
 | `rag-test-support` | none | `FakeEmbeddingModel`, `FakeChatModel`, `FakeModels`, `PgvectorTestcontainer` |
 
 The story services are a walking skeleton. Each endpoint exists and works end to end with the simplest
@@ -47,7 +48,8 @@ stub does today, and `grep -rn "TODO(story-" --include=*.java .` finds the place
 
 pgvector holds one vector table per embedding model and an `index_registry` table that marks the active one, so a
 re-index with another model builds a new table and switches in one transaction. Flyway migration `V1` creates the
-extensions, `index_registry` and `ingestion_manifest`. Only ingest-static runs it. Details are in
+extensions, `index_registry` and `ingestion_manifest`, and `V2` adds the manifest's `source_type` column. Only
+ingest-static runs them. Details are in
 [architecture.md](architecture.md).
 
 ## Running

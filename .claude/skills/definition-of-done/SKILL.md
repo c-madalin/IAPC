@@ -24,7 +24,7 @@ isn't met and why. Don't tick boxes you haven't checked.
 
 ## 3. Eval
 
-- Did main code change in rag-common, rag-platform, rag-store, rag-api, ingest-*, retrieval-*, or did a
+- Did main code change in rag-common, rag-platform, rag-store, rag-ingest, rag-api, ingest-*, retrieval-*, or did a
   `pom.xml`, `resources/` or eval/data/golden-set.json change? Then run the eval-regression skill: `make eval`, commit `eval/reports/latest.json`,
   and report the metric deltas in the PR. CI fails otherwise.
 

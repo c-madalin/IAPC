@@ -21,6 +21,7 @@
         <module>rag-common</module>
         <module>rag-platform</module>
         <module>rag-store</module>
+        <module>rag-ingest</module>
         <module>rag-test-support</module>
         <module>eureka-server</module>
         <module>api-gateway</module>
@@ -78,6 +79,11 @@
             <dependency>
                 <groupId>ro.iapc</groupId>
                 <artifactId>rag-store</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ro.iapc</groupId>
+                <artifactId>rag-ingest</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

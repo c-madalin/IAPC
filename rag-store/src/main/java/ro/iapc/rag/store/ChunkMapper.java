@@ -20,6 +20,7 @@ public final class ChunkMapper {
                 integer(m.get(MetadataKeys.PAGE)),
                 integer(m.get(MetadataKeys.CHUNK_INDEX)),
                 doc.getText(),
+                doc.getScore(),
                 doc.getScore());
     }
 

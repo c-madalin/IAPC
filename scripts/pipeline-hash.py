@@ -17,7 +17,7 @@ PATHS = [
     "resources",
     "eval/data/golden-set.json",
     *(f"{m}/src/main" for m in (
-        "rag-common", "rag-platform", "rag-store", "rag-api",
+        "rag-common", "rag-platform", "rag-store", "rag-ingest", "rag-api",
         "ingest-static", "ingest-dynamic", "retrieval-pre", "retrieval-post",
     )),
 ]

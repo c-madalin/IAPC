@@ -46,6 +46,10 @@
             <artifactId>rag-store</artifactId>
         </dependency>
         <dependency>
+            <groupId>ro.iapc</groupId>
+            <artifactId>rag-ingest</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>

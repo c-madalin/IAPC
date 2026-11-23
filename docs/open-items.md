@@ -15,6 +15,9 @@ Everything still undecided or stubbed, in one place. When you resolve one, delet
 | Numeric targets to agree with the product owner | Watcher latency (30 s proposed), ReDoS time limit, multi-query latency and token caps, similarity threshold, eval tolerance (0.02) | each story owner |
 | Second embedding model for the re-index demo | `mxbai-embed-large` (1024 dims) is listed in `rag.store.models` as a candidate | Story 1 |
 | Golden set size | 14 starter questions in `eval/data/golden-set.json`; Story 4 Task 4 needs at least 30 including unanswerable ones | Story 4 |
+| OR across different filter fields | The bracket syntax (decisions, 2026-11-22) has OR only within one field. Ask the product owner whether Story 3 Task 1's "AND/OR" needs `source=a OR page>5` | Story 3 |
+| Where the cross-encoder runs | Story 4 Task 1. Ollama has no reranking API, so the options are ONNX Runtime or DJL inside retrieval-post, or a sidecar container (see retrieval-post's `AGENTS.md`) | Story 4 |
+| Fewer than topN results with filters | pgvector's HNSW index filters after the index scan, so once old versions pile up, a default `is_latest` search can return fewer than `topN` chunks. Check `hnsw.ef_search` or iterative scans when it shows up | Stories 2 and 3 |
 | Postman collection | Story 3 Task 1 requires one committed; no folder exists yet (suggest `docs/postman/`) | Story 3 |
 
 ## Stubs in the walking skeleton
@@ -24,11 +27,11 @@ Everything still undecided or stubbed, in one place. When you resolve one, delet
 | Story / task | Stub today |
 |---|---|
 | 1.1 | Page-based PDF reading and `TokenTextSplitter` without overlap or structure awareness |
-| 1.2 | No checksum skip. Replacement is delete-then-add, not atomic |
+| 1.2 | No checksum skip. Replacement is atomic through `ChunkWriter`; no chunk-count test after an update yet |
 | 1.3 | Delete works; there's no orphan check |
 | 1.4 | Manifest table and `/manifest` exist; no reconciliation script or re-index endpoint (the store API supports it) |
 | 2.1 to 2.4 | ingest-dynamic endpoints return 501 |
-| 3.1 | Any filter is rejected with 400 |
+| 3.1 | Any filter is rejected with 400. The default `is_latest == true` filter is in place |
 | 3.2 | The query is only trimmed |
 | 3.3, 3.4 | Not started; `stages.expand` is ignored |
 | 4.1 | No reranker; `stages.rerank` is ignored |
