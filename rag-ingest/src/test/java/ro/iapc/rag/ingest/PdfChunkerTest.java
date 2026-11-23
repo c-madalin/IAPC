@@ -45,4 +45,40 @@ class PdfChunkerTest {
     void rejectsANonPositiveChunkSize() {
         assertThatThrownBy(() -> new PdfChunker(0)).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void repeatsConfiguredOverlapAtAdjacentChunkBoundary() {
+        List<String> chunks = PdfChunker.split("one two three four five six seven eight nine ten", 4, 2);
+
+        assertThat(chunks)
+                .containsExactly(
+                        "one two three four", "three four five six", "five six seven eight", "seven eight nine ten");
+    }
+
+    @Test
+    void rejectsOverlapAtOrAboveChunkSize() {
+        assertThatThrownBy(() -> new PdfChunker(4, 4)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void readsTableFixture() {
+        List<Document> chunks = new PdfChunker(400, 50).chunk(new ClassPathResource("pdfs/table.pdf"));
+
+        assertThat(chunks).isNotEmpty();
+        assertThat(chunks.stream()
+                        .map(Document::getText)
+                        .anyMatch(text -> text.contains("Response time") && text.contains("Security team")))
+                .isTrue();
+    }
+
+    @Test
+    void readsMultiColumnFixture() {
+        List<Document> chunks = new PdfChunker(400, 50).chunk(new ClassPathResource("pdfs/multicolumn.pdf"));
+
+        assertThat(chunks).isNotEmpty();
+        assertThat(chunks.stream()
+                        .map(Document::getText)
+                        .anyMatch(text -> text.contains("twelve characters") && text.contains("fifteen minutes")))
+                .isTrue();
+    }
 }
