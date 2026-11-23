@@ -84,7 +84,7 @@ public class PdfIngestionService {
         String checksum = Checksums.sha256(pdf);
 
         List<Document> chunks = new ChunkMetadata(docId, "1", filename, checksum, index.embeddingModel())
-                .applyTo(new PdfChunker(properties.chunkSize()).chunk(pdf));
+                .applyTo(new PdfChunker(properties.chunkSize(), properties.chunkOverlap()).chunk(pdf));
 
         // TODO(story-1-task-2): skip the file when its checksum matches the manifest.
         ChunkWriter.Result written = chunkWriter.write(index, docId, chunks, ChunkWriter.Retire.DELETE);

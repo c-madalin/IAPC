@@ -13,7 +13,8 @@ The professor's notes used placeholder names like `APP_CHUNK_SIZE`; this table m
 | `EMBEDDING_MODEL` | `rag.store.default-model` | ingest-*, retrieval-pre | `nomic-embed-text` | Model of the index created when none exists. Must be a key in `rag.store.models` |
 | (code) | `rag.store.models` | ingest-*, retrieval-pre | `nomic-embed-text: 768`, `mxbai-embed-large: 1024` | Allowed embedding models and their dimensions. Defaults live in `RagStoreProperties` so every service agrees; add new models there |
 | `CHAT_MODEL` | `rag.answer.chat-model` | retrieval-post | `qwen2.5:7b` | |
-| `CHUNK_SIZE` (was `APP_CHUNK_SIZE`) | `rag.ingest.chunk-size` | ingest-static | `400` tokens | Overlap arrives with Story 1 Task 1 |
+| `CHUNK_SIZE` (was `APP_CHUNK_SIZE`) | `rag.ingest.chunk-size` | ingest-static | `400` words | Target chunk size |
+| `CHUNK_OVERLAP` | `rag.ingest.chunk-overlap` | ingest-static | `50` words | Repeated words between adjacent chunks |
 | `INGEST_RESOURCES` | `rag.ingest.resources` | ingest-static | `file:./resources/*.pdf` | `/app/resources` in Docker, mounted read-only |
 | `INGEST_SYNC_ON_STARTUP` | `rag.ingest.sync-on-startup` | ingest-static | `false`, `true` in Compose | |
 | `RETRIEVAL_TOP_N` | `rag.retrieval.default-top-n` | retrieval-pre | `20` | Candidates before reranking |
