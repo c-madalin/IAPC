@@ -50,6 +50,19 @@ class ManifestRepositoryIT {
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
+    @Test
+    void findsTheLatestManifestRowForAnIndex() {
+        String table = stores.ensureActiveIndex().tableName();
+
+        manifest.upsert(entry("static:a.pdf", SourceType.STATIC, table, 3));
+
+        assertThat(manifest.findLatest("static:a.pdf", table))
+                .get()
+                .extracting(ManifestEntry::checksum, ManifestEntry::chunkCount)
+                .containsExactly("abc", 3);
+        assertThat(manifest.findLatest("static:missing.pdf", table)).isEmpty();
+    }
+
     private static ManifestEntry entry(String docId, SourceType type, String table, int chunks) {
         return new ManifestEntry(docId, "1", "a.pdf", type, "abc", "nomic-embed-text", table, chunks, null);
     }

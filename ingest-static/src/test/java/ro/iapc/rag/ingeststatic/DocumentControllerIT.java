@@ -1,7 +1,10 @@
 package ro.iapc.rag.ingeststatic;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.time.OffsetDateTime;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +15,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import ro.iapc.rag.store.ChunkQueries;
 import ro.iapc.rag.store.EmbeddingModelFactory;
+import ro.iapc.rag.store.ManifestEntry;
+import ro.iapc.rag.store.ManifestRepository;
 import ro.iapc.rag.store.RagStoreProperties;
 import ro.iapc.rag.store.VectorStoreProvider;
 import ro.iapc.rag.testsupport.FakeEmbeddingModel;
@@ -40,6 +45,9 @@ class DocumentControllerIT {
 
     @Autowired
     ChunkQueries chunkQueries;
+
+    @Autowired
+    ManifestRepository manifest;
 
     @Test
     void syncIngestsWithFullMetadataAndRerunCreatesNoDuplicates() {
@@ -72,5 +80,49 @@ class DocumentControllerIT {
         assertThat(chunkQueries.countByDocId(stores.activeIndex(), DOC_ID)).isZero();
 
         assertThat(mvc.delete().uri("/documents/{id}", "static:missing.pdf")).hasStatus(404);
+    }
+
+    @Test
+    void unchangedSyncReturnsTheExistingManifestEntry() {
+        assertThat(mvc.post().uri("/documents/sync")).hasStatusOk();
+        ManifestEntry first =
+                manifest.findLatest(DOC_ID, stores.activeIndex().tableName()).orElseThrow();
+
+        assertThat(mvc.post().uri("/documents/sync")).hasStatusOk();
+
+        assertThat(manifest.findLatest(DOC_ID, stores.activeIndex().tableName()))
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(first);
+    }
+
+    @Test
+    void computesTheNextStaticVersion() {
+        ManifestEntry existing = new ManifestEntry(
+                "static:a.pdf",
+                "4",
+                "a.pdf",
+                ManifestEntry.SourceType.STATIC,
+                "abc",
+                "nomic-embed-text",
+                "vector_store_nomic_embed_text",
+                3,
+                OffsetDateTime.now());
+
+        assertThat(PdfIngestionService.nextVersion(Optional.of(existing))).isEqualTo("5");
+        assertThat(PdfIngestionService.nextVersion(Optional.empty())).isEqualTo("1");
+
+        ManifestEntry invalid = new ManifestEntry(
+                "static:a.pdf",
+                "latest",
+                "a.pdf",
+                ManifestEntry.SourceType.STATIC,
+                "abc",
+                "nomic-embed-text",
+                "vector_store_nomic_embed_text",
+                3,
+                OffsetDateTime.now());
+        assertThatThrownBy(() -> PdfIngestionService.nextVersion(Optional.of(invalid)))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

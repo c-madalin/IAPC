@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
@@ -24,9 +25,7 @@ import ro.iapc.rag.store.VectorIndex;
 import ro.iapc.rag.store.VectorStoreProvider;
 
 /**
- * Walking-skeleton ingestion: rag-ingest's chunker, then {@link ChunkWriter} replaces the document's chunks
- * atomically. Story 1 adds structure-aware chunking with overlap (Task 1), the checksum skip (Task 2), orphan checks
- * (Task 3) and re-index (Task 4).
+ * Ingests rag-ingest chunks, skips unchanged static files and replaces changed documents atomically.
  */
 @Service
 public class PdfIngestionService {
@@ -82,16 +81,20 @@ public class PdfIngestionService {
         String filename = pdf.getFilename();
         String docId = docIdFor(filename);
         String checksum = Checksums.sha256(pdf);
+        Optional<ManifestEntry> existing = manifest.findLatest(docId, index.tableName());
+        if (existing.isPresent() && checksum.equals(existing.get().checksum())) {
+            log.info("Skipped unchanged {} ({})", filename, docId);
+            return existing.get();
+        }
+        String version = nextVersion(existing);
 
-        List<Document> chunks = new ChunkMetadata(docId, "1", filename, checksum, index.embeddingModel())
-                .applyTo(new PdfChunker(properties.chunkSize()).chunk(pdf));
-
-        // TODO(story-1-task-2): skip the file when its checksum matches the manifest.
+        List<Document> chunks = new ChunkMetadata(docId, version, filename, checksum, index.embeddingModel())
+                .applyTo(new PdfChunker(properties.chunkSize(), properties.chunkOverlap()).chunk(pdf));
         ChunkWriter.Result written = chunkWriter.write(index, docId, chunks, ChunkWriter.Retire.DELETE);
 
         ManifestEntry entry = new ManifestEntry(
                 docId,
-                "1",
+                version,
                 filename,
                 ManifestEntry.SourceType.STATIC,
                 checksum,
@@ -109,6 +112,20 @@ public class PdfIngestionService {
                 index.tableName(),
                 written.retired());
         return entry;
+    }
+
+    static String nextVersion(Optional<ManifestEntry> existing) {
+        if (existing.isEmpty()) {
+            return "1";
+        }
+        try {
+            return Integer.toString(Integer.parseInt(existing.get().version()) + 1);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                    "Static document version must be an integer, got "
+                            + existing.get().version(),
+                    e);
+        }
     }
 
     /** Returns the number of chunks removed; 0 means the document was not in the index. */

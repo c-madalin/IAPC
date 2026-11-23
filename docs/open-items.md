@@ -10,7 +10,7 @@ Everything still undecided or stubbed, in one place. When you resolve one, delet
 | Story owners and their GitHub handles | `.github/CODEOWNERS` is fully commented out with `<story-N-owner>` and `<infra-owner-N>` placeholders | team |
 | Who takes two stories | README module table says "Story N" only | team |
 | Branch protection | Not enabled yet. Settings in `docs/branch-protection.md`; needs the repo admin (c-madalin) | repo admin |
-| Sample PDFs with a table and with multiple columns | Story 1 Task 1 needs both in `resources/`. The six current PDFs have small tables only (`compliance_responsibilities.pdf`, `updatecycle_checklist.pdf`) and none is multi-column (checked with pdftotext) | team |
+| Sample PDFs with a table and with multiple columns | Story 1 Task 1 needs both in `resources/`. Table and multi-column fixtures are available for the chunking tests | Story 1 |
 | First full eval report and baseline | `eval/baseline.json` currently comes from a retrieval-only run (no chat model). Run `make eval` with `qwen2.5:7b` on a GPU machine, then `make eval-baseline`, so refusal and faithfulness are gated too | Story 4 |
 | Numeric targets to agree with the product owner | Watcher latency (30 s proposed), ReDoS time limit, multi-query latency and token caps, similarity threshold, eval tolerance (0.02) | each story owner |
 | Second embedding model for the re-index demo | `mxbai-embed-large` (1024 dims) is listed in `rag.store.models` as a candidate | Story 1 |
@@ -26,8 +26,8 @@ Everything still undecided or stubbed, in one place. When you resolve one, delet
 
 | Story / task | Stub today |
 |---|---|
-| 1.1 | Page-based PDF reading and `TokenTextSplitter` without overlap or structure awareness |
-| 1.2 | No checksum skip. Replacement is atomic through `ChunkWriter`; no chunk-count test after an update yet |
+| 1.1 | The chunking implementation needs a 20-chunk manual text-quality check |
+| 1.2 | Changed-PDF integration test and mid-update failure test need final coverage |
 | 1.3 | Delete works; there's no orphan check |
 | 1.4 | Manifest table and `/manifest` exist; no reconciliation script or re-index endpoint (the store API supports it) |
 | 2.1 to 2.4 | ingest-dynamic endpoints return 501 |
