@@ -68,7 +68,11 @@ class DocumentControllerIT {
     void deleteRemovesAllChunksAndUnknownDocIs404() {
         mvc.post().uri("/documents/sync").exchange();
 
-        assertThat(mvc.delete().uri("/documents/{id}", DOC_ID)).hasStatusOk();
+        assertThat(mvc.delete().uri("/documents/{id}", DOC_ID))
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.orphanedVectors")
+                .isEqualTo(0);
         assertThat(chunkQueries.countByDocId(stores.activeIndex(), DOC_ID)).isZero();
 
         assertThat(mvc.delete().uri("/documents/{id}", "static:missing.pdf")).hasStatus(404);
