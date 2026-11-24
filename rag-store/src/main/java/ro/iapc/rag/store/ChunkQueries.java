@@ -47,6 +47,18 @@ public class ChunkQueries {
         return count == null ? 0 : count;
     }
 
+    /** Counts staged chunks and chunks whose document is absent from the manifest for this vector table. */
+    public int countOrphans(VectorIndex index) {
+        Integer count = jdbc.queryForObject(
+                "select count(*) from " + index.tableName()
+                        + " where metadata->>'" + MetadataKeys.STAGED_VERSION + "' is not null"
+                        + " or metadata->>'" + MetadataKeys.DOC_ID + "' not in"
+                        + " (select doc_id from ingestion_manifest where table_name = ?)",
+                Integer.class,
+                index.tableName());
+        return count == null ? 0 : count;
+    }
+
     private static RowMapper<Chunk> rowMapper() {
         return (rs, i) -> ChunkMapper.toChunk(Document.builder()
                 .id(rs.getString("id"))

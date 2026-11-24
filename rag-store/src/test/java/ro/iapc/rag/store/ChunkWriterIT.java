@@ -65,6 +65,9 @@ class ChunkWriterIT {
     @Autowired
     JdbcTemplate jdbc;
 
+    @Autowired
+    ManifestRepository manifest;
+
     VectorIndex index;
 
     @BeforeEach
@@ -72,6 +75,8 @@ class ChunkWriterIT {
         EMBEDDING_FAILS.set(false);
         index = stores.ensureActiveIndex();
         jdbc.update("delete from " + index.tableName());
+        manifest.deleteByDocId("static:a.pdf", index.tableName());
+        manifest.deleteByDocId("web:https://x.test/a", index.tableName());
     }
 
     @Test
@@ -116,10 +121,21 @@ class ChunkWriterIT {
     @Test
     void stagedChunksAreInvisibleUntilPublished() {
         writer.write(index, "static:a.pdf", chunks("static:a.pdf", "1", "old password text", 2), Retire.DELETE);
+        manifest.upsert(new ManifestEntry(
+                "static:a.pdf",
+                "1",
+                "a.pdf",
+                ManifestEntry.SourceType.STATIC,
+                "abc",
+                index.embeddingModel(),
+                index.tableName(),
+                2,
+                null));
         List<Document> next = chunks("static:a.pdf", "1", "new password text", 2);
 
         String version = writer.stage(index, "static:a.pdf", next);
 
+        assertThat(queries.countOrphans(index)).isEqualTo(2);
         assertThat(latest("password"))
                 .extracting(Document::getText)
                 .allSatisfy(text -> assertThat(text).startsWith("old"));
