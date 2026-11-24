@@ -68,4 +68,33 @@ public class ManifestRepository {
     public int deleteByDocId(String docId, String tableName) {
         return jdbc.update("delete from ingestion_manifest where doc_id = ? and table_name = ?", docId, tableName);
     }
+
+    public record Reconciliation(
+            VectorIndex index, int manifestEntries, int manifestChunks, int actualChunks, int drift) {}
+
+    public Reconciliation reconcile(VectorIndex index, ChunkQueries chunks) {
+        List<ManifestEntry> rows =
+                jdbc.query("select * from ingestion_manifest where table_name = ?", ROW, index.tableName());
+        int manifestChunks = rows.stream().mapToInt(ManifestEntry::chunkCount).sum();
+        int actualChunks = jdbc.queryForObject("select count(*) from " + index.tableName(), Integer.class);
+        int drift = manifestChunks == actualChunks ? 0 : Math.abs(manifestChunks - actualChunks);
+        return new Reconciliation(index, rows.size(), manifestChunks, actualChunks, drift);
+    }
+
+    public void copyForIndex(VectorIndex source, VectorIndex target) {
+        for (ManifestEntry entry : findAll()) {
+            if (source.tableName().equals(entry.tableName())) {
+                upsert(new ManifestEntry(
+                        entry.docId(),
+                        entry.version(),
+                        entry.source(),
+                        entry.sourceType(),
+                        entry.checksum(),
+                        target.embeddingModel(),
+                        target.tableName(),
+                        entry.chunkCount(),
+                        null));
+            }
+        }
+    }
 }

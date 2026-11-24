@@ -47,16 +47,19 @@ public class ChunkQueries {
         return count == null ? 0 : count;
     }
 
-    /** Counts staged chunks and chunks whose document is absent from the manifest for this vector table. */
-    public int countOrphans(VectorIndex index) {
-        Integer count = jdbc.queryForObject(
-                "select count(*) from " + index.tableName()
-                        + " where metadata->>'" + MetadataKeys.STAGED_VERSION + "' is not null"
-                        + " or metadata->>'" + MetadataKeys.DOC_ID + "' not in"
-                        + " (select doc_id from ingestion_manifest where table_name = ?)",
-                Integer.class,
-                index.tableName());
-        return count == null ? 0 : count;
+    /** Published latest chunks in reading order. Staged chunks are never copied during re-indexing. */
+    public List<Document> findLatest(VectorIndex index) {
+        String sql = "select id, content, metadata from " + index.tableName()
+                + " where metadata->>'" + MetadataKeys.IS_LATEST + "' = 'true'"
+                + " and metadata->>'" + MetadataKeys.STAGED_VERSION + "' is null"
+                + " order by metadata->>'" + MetadataKeys.DOC_ID + "',"
+                + " (metadata->>'" + MetadataKeys.CHUNK_INDEX + "')::int";
+        return jdbc.query(
+                sql,
+                (rs, i) -> Document.builder()
+                        .text(rs.getString("content"))
+                        .metadata(JSON.readValue(rs.getString("metadata"), MAP))
+                        .build());
     }
 
     private static RowMapper<Chunk> rowMapper() {

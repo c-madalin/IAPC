@@ -24,6 +24,9 @@ class ManifestRepositoryIT {
     @Autowired
     VectorStoreProvider stores;
 
+    @Autowired
+    ChunkQueries chunks;
+
     @Test
     void storesBothSourceTypesAndUpsertReplacesTheRow() {
         String table = stores.ensureActiveIndex().tableName();
@@ -51,16 +54,25 @@ class ManifestRepositoryIT {
     }
 
     @Test
-    void findsTheLatestManifestRowForAnIndex() {
+    void reconcilesManifestChunksAgainstVectorRows() {
         String table = stores.ensureActiveIndex().tableName();
-
         manifest.upsert(entry("static:a.pdf", SourceType.STATIC, table, 3));
+        stores.active()
+                .add(java.util.List.of(
+                        org.springframework.ai.document.Document.builder()
+                                .text("one")
+                                .metadata(ro.iapc.rag.common.MetadataKeys.DOC_ID, "static:a.pdf")
+                                .build(),
+                        org.springframework.ai.document.Document.builder()
+                                .text("two")
+                                .metadata(ro.iapc.rag.common.MetadataKeys.DOC_ID, "static:a.pdf")
+                                .build()));
 
-        assertThat(manifest.findLatest("static:a.pdf", table))
-                .get()
-                .extracting(ManifestEntry::checksum, ManifestEntry::chunkCount)
-                .containsExactly("abc", 3);
-        assertThat(manifest.findLatest("static:missing.pdf", table)).isEmpty();
+        ManifestRepository.Reconciliation report = manifest.reconcile(stores.activeIndex(), chunks);
+
+        assertThat(report.manifestChunks()).isEqualTo(3);
+        assertThat(report.actualChunks()).isEqualTo(2);
+        assertThat(report.drift()).isEqualTo(1);
     }
 
     private static ManifestEntry entry(String docId, SourceType type, String table, int chunks) {

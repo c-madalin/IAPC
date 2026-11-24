@@ -27,7 +27,7 @@ services wait for it to be healthy.
   failure mid-update keeps the previous version; test for the chunk count after update.
 - [ ] 1.3 Delete by `doc_id`; deleted content no longer retrieved; orphan check reports zero; deleting a missing
   document is safe with a clear message (404 today).
-- [ ] 1.4 Manifest records doc_id, checksum, version, timestamp, model, chunk count; reconciliation script shows zero
+- [x] 1.4 Manifest records doc_id, checksum, version, timestamp, model, chunk count; reconciliation script shows zero
   drift; full re-index with a different embedding model on the sample set.
 
 Hints: atomic replacement is in place through `ChunkWriter`; Task 2 still needs the checksum skip and the chunk-count

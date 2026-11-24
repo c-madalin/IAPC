@@ -9,18 +9,32 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import ro.iapc.rag.store.ChunkQueries;
 import ro.iapc.rag.store.ManifestEntry;
 import ro.iapc.rag.store.ManifestRepository;
+import ro.iapc.rag.store.ManifestRepository.Reconciliation;
+import ro.iapc.rag.store.VectorStoreProvider;
 
 @RestController
 public class DocumentController {
 
     private final PdfIngestionService ingestion;
     private final ManifestRepository manifest;
+    private final ChunkQueries chunks;
+    private final VectorStoreProvider stores;
+    private final ReindexService reindex;
 
-    public DocumentController(PdfIngestionService ingestion, ManifestRepository manifest) {
+    public DocumentController(
+            PdfIngestionService ingestion,
+            ManifestRepository manifest,
+            ChunkQueries chunks,
+            VectorStoreProvider stores,
+            ReindexService reindex) {
         this.ingestion = ingestion;
         this.manifest = manifest;
+        this.chunks = chunks;
+        this.stores = stores;
+        this.reindex = reindex;
     }
 
     @PostMapping("/documents/sync")
@@ -43,5 +57,15 @@ public class DocumentController {
     @GetMapping("/manifest")
     public List<ManifestEntry> manifest() {
         return manifest.findAll();
+    }
+
+    @GetMapping("/manifest/reconcile")
+    public Reconciliation reconcile() {
+        return manifest.reconcile(stores.activeIndex(), chunks);
+    }
+
+    @PostMapping("/indexes/reindex")
+    public ReindexService.Result reindex(@org.springframework.web.bind.annotation.RequestParam String model) {
+        return reindex.reindex(model);
     }
 }
